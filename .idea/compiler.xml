@@ -9,19 +9,22 @@
         <module name="UserService" />
         <module name="sms_extract" />
       </profile>
-      <profile name="Annotation profile for expense_tracker" enabled="true">
+      <profile name="Annotation profile for ExpenceService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
         </processorPath>
+        <module name="ExpenceService" />
         <module name="expense_tracker" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ExpenceService" options="-parameters" />
       <module name="UserService" options="-parameters" />
       <module name="expense_tracker" options="-parameters" />
       <module name="sms_extract" options="-parameters" />
