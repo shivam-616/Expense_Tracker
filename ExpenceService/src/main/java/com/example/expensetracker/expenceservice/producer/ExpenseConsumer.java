@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-@Component
-@ConditionalOnProperty(name = "kafka.consumer.enabled", havingValue = "true", matchIfMissing = false)
+@Service
 public class ExpenseConsumer {
     private expenseService expenseService;
 
