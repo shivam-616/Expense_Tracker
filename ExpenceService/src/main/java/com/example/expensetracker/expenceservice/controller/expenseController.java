@@ -26,18 +26,6 @@ public class expenseController {
     //need sevice for business logic
 
     private expenseService expenseService;
-    public expenseController(expenseService expenseService) {
-        this.expenseService = expenseService;
-    }
-
-    private expense expense;
-    public addDTO addDTO;
-
-    public expenseController(expenseService expenseService, expense expense, addDTO addDTO) {
-        this.expenseService = expenseService;
-        this.expense = expense;
-        this.addDTO = addDTO;
-    }
 
 
     //insight
@@ -91,6 +79,7 @@ public class expenseController {
                 entrydetail.category(),
                 entrydetail.date()
         );
+
 
         try {
             // 2. Pass the arguments to the service and include the HttpStatus

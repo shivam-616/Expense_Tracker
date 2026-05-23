@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class smsdataProducer {
     private final KafkaTemplate<String , TransactionDetailsDTO> kafkaTemplate;
 
-    @Value("${spring.kafka-json.name}")
+    @Value("${spring.kafka.topic-json.name}")
     private String topicJsonName;
 
     @Autowired

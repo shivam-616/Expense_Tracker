@@ -22,22 +22,27 @@ import java.util.Optional;
 @Data
 public class expenseService {
 
-    private addDTO addDTO;
-    private expense expense;
+
     @Autowired
-    private expenseRepo expenserepo;
+    private final expenseRepo expenserepo;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
-    public  boolean saveExpense( addDTO entrydetail) {
-        expense.setCurrency(((Objects.isNull(entrydetail.curreny()))) ? entrydetail.curreny() : "INR");
+    public boolean saveExpense(addDTO entrydetail) {
         try {
-            expenserepo.save(objectMapper.convertValue(addDTO, expense.class));
+            // 1. Create a fresh instance of the entity from the DTO
+            expense newExpense = objectMapper.convertValue(entrydetail, expense.class);
+
+            // 2. Set the currency
+            newExpense.setCurrency(entrydetail.curreny() != null ? entrydetail.curreny() : "INR");
+            newExpense.setUserId(entrydetail.userID()); // Ensure UserID is mapped
+
+            // 3. Save it
+            expenserepo.save(newExpense);
             return true;
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
-
-
         }
     }
 
@@ -47,6 +52,7 @@ public class expenseService {
                 new TypeReference<List<addDTO>>() {
                 });
     }
+
     public boolean updateexpense(String userID, addDTO entrydetail) {
         Optional<expense> expenseFoundOpt = expenserepo.findByUserIdAndExternalId(userID, entrydetail.externalId());
 
