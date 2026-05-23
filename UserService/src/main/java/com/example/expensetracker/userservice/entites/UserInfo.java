@@ -1,11 +1,9 @@
 package com.example.expensetracker.userservice.entites;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jdk.jfr.DataAmount;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,15 +18,17 @@ import org.antlr.v4.runtime.misc.NotNull;
 @Builder
 public class UserInfo {
 
-    private long id;
-    @NotNull
+    // Removed the 'long id' field completely.
+    // The userId coming from Kafka/Auth Service is now the true primary key.
     @Id
     @JsonProperty("user_id")
     private String userId;
+
     @JsonProperty("first_name")
-    private String firstName ;
+    private String firstName;
+
     @JsonProperty("last_name")
-    private String LastName ;
+    private String LastName;
 
     @NotNull
     @JsonProperty("email")

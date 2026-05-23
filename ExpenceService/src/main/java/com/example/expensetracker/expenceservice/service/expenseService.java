@@ -4,24 +4,32 @@ package com.example.expensetracker.expenceservice.service;
 import com.example.expensetracker.expenceservice.entites.expense;
 import com.example.expensetracker.expenceservice.repository.expenseRepo;
 import com.example.expensetracker.expenceservice.requestDTO.addDTO;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Data
 public class expenseService {
 
     private addDTO addDTO;
     private expense expense;
+    @Autowired
     private expenseRepo expenserepo;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
     public  boolean saveExpense( addDTO entrydetail) {
-        expense.setUserId(addDTO.userID(userId));
         expense.setCurrency(((Objects.isNull(entrydetail.curreny()))) ? entrydetail.curreny() : "INR");
         try {
             expenserepo.save(objectMapper.convertValue(addDTO, expense.class));
@@ -39,17 +47,29 @@ public class expenseService {
                 new TypeReference<List<addDTO>>() {
                 });
     }
-//    public boolean updateexpense(String userID , addDTO entrydetail){
-//        expense.setCurrency(((Objects.isNull(entrydetail.curreny())))? entrydetail.curreny(): "INR");
-//        Optional<expense> expenseFoundOpt = expenserepo.findByUserIdAndExternalId(entrydetail.userID(), entrydetail.externalId());
-//        if(expenseFoundOpt.isEmpty()){
-//            return false;
-//        }
-//        expense expense = expenseFoundOpt.get();
-//        expense.setAmount(entrydetail.amount());
-//        expense.setMerchant(Strings.isNotBlank(entrydetail.merchant())?entrydetail.merchant():expense.getMerchant());
-//        expense.setCurrency(Strings.isNotBlank(entrydetail.curreny())?entrydetail.merchant():expense.getCurrency());
-//        expenserepo.save(expense);
-//        return true;
-//    }
+    public boolean updateexpense(String userID, addDTO entrydetail) {
+        Optional<expense> expenseFoundOpt = expenserepo.findByUserIdAndExternalId(userID, entrydetail.externalId());
+
+        if (expenseFoundOpt.isEmpty()) {
+            return false;
+        }
+
+        // Renamed variable to existingExpense to avoid shadowing the Entity class name
+        expense existingExpense = expenseFoundOpt.get();
+        existingExpense.setAmount(entrydetail.amount());
+
+        // Replaced Strings.isNotBlank with standard Java String checks
+        if (entrydetail.merchant() != null && !entrydetail.merchant().trim().isEmpty()) {
+            existingExpense.setMerchant(entrydetail.merchant());
+        }
+
+        if (entrydetail.curreny() != null && !entrydetail.curreny().trim().isEmpty()) {
+            existingExpense.setCurrency(entrydetail.curreny());
+        } else {
+            existingExpense.setCurrency("INR");
+        }
+
+        expenserepo.save(existingExpense);
+        return true;
+    }
 }

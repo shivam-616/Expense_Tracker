@@ -4,6 +4,7 @@ import com.example.auth_service.entities.UserInfo;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming ()
+
 public class UserInfoDto extends UserInfo
 {
 

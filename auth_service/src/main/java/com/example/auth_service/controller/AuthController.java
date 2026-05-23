@@ -28,21 +28,32 @@ public class AuthController
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
-    private UserInfoDto userInfoDto;
+
+
+
 
     @PostMapping("auth/v1/signup")
-    public ResponseEntity SignUp(@RequestBody UserInfoDto userInfoDto){
-        this.userInfoDto = userInfoDto;
-        try{
+    public ResponseEntity<?> SignUp(@RequestBody UserInfoDto userInfoDto) {
+
+        // 3. Removed the dangerous 'this.userInfoDto = userInfoDto;' line.
+        // We only use the local 'userInfoDto' parameter provided by the @RequestBody.
+
+        try {
             Boolean isSignUped = userDetailsService.signupUser(userInfoDto);
-            if(Boolean.FALSE.equals(isSignUped)){
+            if (Boolean.FALSE.equals(isSignUped)) {
                 return new ResponseEntity<>("Already Exist", HttpStatus.BAD_REQUEST);
             }
+
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userInfoDto.getUsername());
             String jwtToken = jwtService.GenerateToken(userInfoDto.getUsername());
-            return new ResponseEntity<>(JwtResponseDTO.builder().accessToken(jwtToken).
-                    token(refreshToken.getToken()).build(), HttpStatus.OK);
-        }catch (Exception ex){
+
+            return new ResponseEntity<>(JwtResponseDTO.builder()
+                    .accessToken(jwtToken)
+                    .token(refreshToken.getToken())
+                    .build(), HttpStatus.OK);
+
+        } catch (Exception ex) {
+            // Note: In the future, log 'ex.getMessage()' here so you can see exact errors in your console!
             return new ResponseEntity<>("Exception in User Service", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

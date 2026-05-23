@@ -1,6 +1,5 @@
 package com.example.auth_service.eventProducer;
 
-import com.example.auth_service.model.UserInfoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -11,20 +10,24 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserInfoProducer {
-    private final KafkaTemplate<String, UserInfoDto> kafkaTemplate;
 
-    @Value("${spring.kafka-json.name}")
+    // 1. Changed UserInfoDto to UserInfoEvent to match the data you are actually sending
+    private final KafkaTemplate<String, UserInfoEvent> kafkaTemplate;
+
+    // 2. Fixed the property key to perfectly match application.properties
+    @Value("${spring.kafka.topic-json.name}")
     private String topicJsonName;
 
-
     @Autowired
-    public UserInfoProducer(KafkaTemplate<String, UserInfoDto> kafkaTemplate) {
+    public UserInfoProducer(KafkaTemplate<String, UserInfoEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
     public void sendEventTokafka(UserInfoEvent userInfoEvent){
-        Message<UserInfoEvent> message = MessageBuilder.withPayload(userInfoEvent).setHeader(KafkaHeaders.TOPIC , topicJsonName).build();
+        Message<UserInfoEvent> message = MessageBuilder
+                .withPayload(userInfoEvent)
+                .setHeader(KafkaHeaders.TOPIC, topicJsonName)
+                .build();
         kafkaTemplate.send(message);
     }
-
 }

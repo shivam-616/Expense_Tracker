@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 public record addDTO(
         // for manual entry from the user
-        @NonNull String userID,
+       String userID,
         @NonNull String merchant,
         @NonNull String curreny,
         @JsonProperty("external_id") String externalId,

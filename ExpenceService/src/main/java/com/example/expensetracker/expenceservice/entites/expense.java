@@ -30,7 +30,7 @@ public class expense {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    private UUID id;
 
 
     @Column(name = "user_id")

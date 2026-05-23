@@ -4,6 +4,7 @@ import  com.example.auth_service.auth.JwtAuthFilter;
 import com.example.auth_service.auth.JwtAuthFilter;
 import com.example.auth_service.repository.UserRepository;
 import com.example.auth_service.service.UserDetailsServiceImpl;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 @Data
+@AllArgsConstructor
 public class SecurityConfig {
 
     @Autowired
@@ -36,7 +38,6 @@ public class SecurityConfig {
 
 
     @Bean
-    @Autowired
     public UserDetailsService userDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return new UserDetailsServiceImpl(userRepository, passwordEncoder);
     }

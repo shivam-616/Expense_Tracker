@@ -4,11 +4,14 @@ import com.example.expensetracker.expenceservice.requestDTO.addDTO;
 import com.example.expensetracker.expenceservice.service.expenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-@Service
+@Component
+@ConditionalOnProperty(name = "kafka.consumer.enabled", havingValue = "true", matchIfMissing = false)
 public class ExpenseConsumer {
     private expenseService expenseService;
 

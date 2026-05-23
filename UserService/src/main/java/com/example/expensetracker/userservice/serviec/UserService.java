@@ -6,6 +6,7 @@ import com.example.expensetracker.userservice.entites.userinfoDto;
 import com.example.expensetracker.userservice.repostiory.userservicerepo;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +15,11 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 @Service
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
 
-    private userservicerepo userservicerepo;
+    @Autowired
+    private final userservicerepo userservicerepo;
 
     public userinfoDto createOrUpdateUser(userinfoDto eventdata){
         // two method kafka call to creata a blank templeate

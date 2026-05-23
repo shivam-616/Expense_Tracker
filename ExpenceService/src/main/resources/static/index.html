@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker API Tester</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; }
+        .config-box { background: #e9ecef; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; }
+        .config-box input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        .card { border: 1px solid #ddd; border-radius: 6px; padding: 20px; margin-bottom: 20px; }
+        .card h2 { margin-top: 0; color: #34495e; font-size: 1.2rem; border-bottom: 2px solid #3498db; padding-bottom: 5px; display: inline-block; }
+        .form-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
+        .form-group input { flex: 1 1 calc(50% - 10px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #2980b9; }
+        .btn-green { background-color: #2ecc71; }
+        .btn-green:hover { background-color: #27ae60; }
+        .btn-orange { background-color: #e67e22; }
+        .btn-orange:hover { background-color: #d35400; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 6px; overflow-x: auto; max-height: 300px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Expense Service Tester</h1>
+
+    <div class="config-box">
+        <label><strong>Backend URL:</strong></label>
+        <input type="text" id="baseUrl" value="http://localhost:8080/expense/v1">
+        <label><strong>User ID (X-User-Id):</strong></label>
+        <input type="text" id="userId" value="test-user-123">
+    </div>
+
+    <div class="card">
+        <h2>1. Add Expense (/addExpense)</h2>
+        <div class="form-group">
+            <input type="text" id="add-extId" placeholder="External ID (e.g., txn-001)">
+            <input type="text" id="add-merchant" placeholder="Merchant (e.g., Amazon)">
+            <input type="number" id="add-amount" placeholder="Amount (e.g., 500)">
+            <input type="text" id="add-currency" placeholder="Currency (e.g., INR)" value="INR">
+            <input type="text" id="add-category" placeholder="Category (e.g., Food)">
+            <input type="datetime-local" id="add-date">
+        </div>
+        <button class="btn-green" onclick="addExpense()">Add Expense</button>
+    </div>
+
+    <div class="card">
+        <h2>2. Get Expenses (/getExpense)</h2>
+        <p>Fetches all expenses for the User ID set at the top.</p>
+        <button onclick="getExpenses()">Fetch My Expenses</button>
+    </div>
+
+    <div class="card">
+        <h2>3. Update Expense (/updateExpense)</h2>
+        <div class="form-group">
+            <input type="text" id="upd-extId" placeholder="Existing External ID (e.g., txn-001)">
+            <input type="text" id="upd-merchant" placeholder="New Merchant Name">
+            <input type="number" id="upd-amount" placeholder="New Amount">
+            <input type="text" id="upd-currency" placeholder="New Currency">
+        </div>
+        <button class="btn-orange" onclick="updateExpense()">Update Expense</button>
+    </div>
+
+    <div class="card">
+        <h2>Response Output</h2>
+        <pre id="output">Results will appear here...</pre>
+    </div>
+</div>
+
+<script>
+    function getHeaders() {
+        return {
+            'Content-Type': 'application/json',
+            'X-User-Id': document.getElementById('userId').value
+        };
+    }
+
+    function getBaseUrl() {
+        return document.getElementById('baseUrl').value;
+    }
+
+    function printOutput(data, isError = false) {
+        const outputBox = document.getElementById('output');
+        outputBox.style.color = isError ? '#e74c3c' : '#ecf0f1';
+        outputBox.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+    }
+
+    // 1. ADD EXPENSE
+    async function addExpense() {
+        const payload = {
+            externalId: document.getElementById('add-extId').value,
+            merchant: document.getElementById('add-merchant').value,
+            amount: parseFloat(document.getElementById('add-amount').value),
+            curreny: document.getElementById('add-currency').value, // Matches DTO typo
+            category: document.getElementById('add-category').value,
+            date: document.getElementById('add-date').value ? new Date(document.getElementById('add-date').value).toISOString() : new Date().toISOString()
+        };
+
+        try {
+            printOutput("Sending request...");
+            const response = await fetch(`${getBaseUrl()}/addExpense`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            printOutput(`Status: ${response.status}\n\nSuccess: ${result}`);
+        } catch (error) {
+            printOutput(error.message, true);
+        }
+    }
+
+    // 2. GET EXPENSES
+    async function getExpenses() {
+        try {
+            printOutput("Fetching expenses...");
+            const response = await fetch(`${getBaseUrl()}/getExpense`, {
+                method: 'GET',
+                headers: getHeaders()
+            });
+            const result = await response.json();
+            printOutput(result);
+        } catch (error) {
+            printOutput(error.message, true);
+        }
+    }
+
+    // 3. UPDATE EXPENSE
+    async function updateExpense() {
+        const payload = {
+            externalId: document.getElementById('upd-extId').value,
+            merchant: document.getElementById('upd-merchant').value,
+            amount: parseFloat(document.getElementById('upd-amount').value),
+            curreny: document.getElementById('upd-currency').value // Matches DTO typo
+        };
+
+        try {
+            printOutput("Sending update request...");
+            const response = await fetch(`${getBaseUrl()}/updateExpense`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            printOutput(`Status: ${response.status}\n\nUpdate Success: ${result}`);
+        } catch (error) {
+            printOutput(error.message, true);
+        }
+    }
+</script>
+</body>
+</html>

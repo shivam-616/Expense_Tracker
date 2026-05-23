@@ -1,6 +1,7 @@
 package com.example.auth_service.repository;
 
-import authservice.entities.RefreshToken;
+
+import com.example.auth_service.entities.RefreshToken;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
