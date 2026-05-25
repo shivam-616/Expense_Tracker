@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.4
@@ -7,28 +8,52 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    healthcheck:
+      test: ["CMD", "echo", "ruok", "|", "nc", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
     image: confluentinc/cp-kafka:7.4.4
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
-      - "9092:9092"
+      - "29092:29092" # External port for your local IDE
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # Crucial: This allows your local IDE to connect to Kafka!
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      # INTERNAL is for Docker containers, EXTERNAL is for your local IDE/Postman
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   mysql:
     image: mysql:8.3.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
+
     ports:
       - "3306:3306"
+    expose:
+      - '3306'
+    volumes:
+       - mysql-db:/var/lib/mysql
 
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   authservice:
     image: authservice
@@ -36,20 +61,22 @@ services:
     ports:
       - '9898:9898'
     environment:
-        KAFKA_HOST: kafka
-        KAFKA_PORT: 9092
-        MYSQL_HOST: mysql
-        MYSQL_PORT: 3306
-        MYSQL_DB: authservice
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DB: authservice
     depends_on:
-       - kafka
-       - mysql
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+
   userservice:
     image: userservice
     container_name: userservice
     ports:
       - '9810:9810'
-
     environment:
       KAFKA_HOST: kafka
       KAFKA_PORT: 9092
@@ -57,8 +84,11 @@ services:
       MYSQL_PORT: 3306
       MYSQL_DB: userservice
     depends_on:
-      - kafka
-      - mysql
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+
   expenceservice:
     image: expenceservice
     container_name: expenceservice
@@ -71,8 +101,10 @@ services:
       MYSQL_PORT: 3306
       MYSQL_DB: expense_db
     depends_on:
-      - kafka
-      - mysql
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
 
   smsservice:
     image: smsservice
@@ -87,9 +119,17 @@ services:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_DB: expense_db
-      gemini_api : ${gemini_api}
+      gemini_api: ${gemini_api}
     depends_on:
-        - kafka
-        - mysql
-        - expenceservice
-        - userservice
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      expenceservice:
+        condition: service_started
+      userservice:
+        condition: service_started
+
+volumes:
+  mysql-db:
+    driver: local

@@ -1,10 +1,11 @@
-package com.example.auth_service;
+package com.example.expensetracker.expense_tracker;
 
+import com.example.auth_service.ExpenseTrackerApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class ExpenseTrackerApplicationTests {
+@SpringBootTest(classes = ExpenseTrackerApplication.class)
+class ExpenseTrackerApplicationTests{
 
     @Test
     void contextLoads() {

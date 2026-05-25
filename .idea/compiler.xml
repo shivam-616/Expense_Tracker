@@ -10,7 +10,7 @@
         <module name="UserService" />
         <module name="sms_extract" />
       </profile>
-      <profile name="Annotation profile for ExpenceService" enabled="true">
+      <profile name="Annotation profile for expense_tracker" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
