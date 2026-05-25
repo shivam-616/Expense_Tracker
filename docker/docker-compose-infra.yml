@@ -11,15 +11,18 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.4.4
     depends_on:
-      - zookeeper
+        - zookeeper
     ports:
-      - "9092:9092"
+        - "29092:29092" # External port for your local IDE
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # Crucial: This allows your local IDE to connect to Kafka!
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_BROKER_ID: 1
+        KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+        # IMPORTANT: Dual Listeners Setup
+        KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+        KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   mysql:
     image: mysql:8.3.0
@@ -28,3 +31,38 @@ services:
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
+
+
+  authservice:
+    image: auth_service
+    container_name: auth_service
+    ports:
+      - '9898:9898'
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DB: auth_db
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+
+  userservice:
+    image: user_service
+    container_name: user_service
+    ports:
+      - '9810:9810'
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DB: userservice
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy

@@ -15,7 +15,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
-public class AuthServiceConsumer {
+public class   AuthServiceConsumer {
     @Autowired
     private UserService userservice;
     @Autowired

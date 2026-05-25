@@ -1,11 +1,5 @@
- package com.example.auth_service.auth;
+package com.example.auth_service.auth;
 
-import com.example.auth_service.eventProducer.UserInfoProducer;
-import com.example.auth_service.repository.UserRepository;
-import com.example.auth_service.service.UserDetailsServiceImpl;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,25 +19,23 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableMethodSecurity
-@Data
-@AllArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
+    // CHANGE 1: Use the interface instead of the concrete UserDetailsServiceImpl
+    private final UserDetailsService userDetailsService;
 
-
-    @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserInfoProducer userInfoProducer) {
-        return   new UserDetailsServiceImpl(userRepository, passwordEncoder,userInfoProducer );
+    // CHANGE 2: Add this suppression to tell IntelliJ the beans definitely exist
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    public SecurityConfig(PasswordEncoder passwordEncoder, UserDetailsService userDetailsService) {
+        this.passwordEncoder = passwordEncoder;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
-
         return http
                 .csrf(AbstractHttpConfigurer::disable).cors(CorsConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
@@ -60,13 +52,14 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsServiceImpl);
+        // Uses the injected interface
+        authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
         return authenticationProvider;
-
     }
 
     @Bean
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
