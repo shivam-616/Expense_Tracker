@@ -1,7 +1,5 @@
  package com.example.auth_service.auth;
 
-import  com.example.auth_service.auth.JwtAuthFilter;
-import com.example.auth_service.auth.JwtAuthFilter;
 import com.example.auth_service.eventProducer.UserInfoProducer;
 import com.example.auth_service.repository.UserRepository;
 import com.example.auth_service.service.UserDetailsServiceImpl;

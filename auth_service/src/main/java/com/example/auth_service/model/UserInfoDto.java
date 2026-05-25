@@ -2,7 +2,6 @@ package com.example.auth_service.model;
 
 import com.example.auth_service.entities.UserInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserInfoDto extends UserInfo
 {
+
     @JsonProperty("first_name")
     private String firstName;
 
@@ -19,7 +19,7 @@ public class UserInfoDto extends UserInfo
     private String lastName;
 
     @JsonProperty("phone_number")
-    private long phoneNumber;
+    private Long phoneNumber;
 
     @JsonProperty("email")
     private String email;
