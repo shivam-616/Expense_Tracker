@@ -53,7 +53,14 @@ public class AiService {
         smsRecord.setMerchant(result.merchant());
         smsRecord.setCategory(result.category());
         smsRecord.setCurrency(result.currency());
-        // (You can set the rest of the fields here too!)
+
+        smsRecord.setPayment_method(result.payment_method());
+        smsRecord.setBank(result.bank());
+        smsRecord.setAccount_last4(result.account_last4());
+        smsRecord.setReference_id(result.reference_id());
+        smsRecord.setTimestamp(result.timestamp());
+        smsRecord.setBalance(result.balance());
+        smsRecord.setStatus(result.status());
 
         aiRepository.save(smsRecord);
 

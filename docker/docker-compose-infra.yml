@@ -66,3 +66,44 @@ services:
         condition: service_healthy
       mysql:
         condition: service_healthy
+
+  smsservice:
+   image: sms_service
+   container_name: sms_service
+   env_file:
+     - ../.env
+   ports:
+     - '8081:8081'
+   environment:
+    KAFKA_HOST: kafka
+    KAFKA_PORT: 9092
+    MYSQL_HOST: mysql
+    MYSQL_PORT: 3306
+    MYSQL_DB: expense_db
+    gemini_api: ${gemini_api}
+   depends_on:
+    kafka:
+      condition: service_healthy
+    mysql:
+      condition: service_healthy
+    expenceservice:
+      condition: service_started
+    userservice:
+      condition: service_started
+
+  expenceservice:
+    image: expense_service
+    container_name: expense_service
+    ports:
+      - '9820:9820'
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DB: expense_db
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
