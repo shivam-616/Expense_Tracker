@@ -32,7 +32,7 @@ public class UserController {
         }
 
     }
-    @GetMapping("/all")
+    @GetMapping("/user/v1/all")
     public ResponseEntity<List<UserInfo>> getAllUsers() {
         List<UserInfo> users = userservicerepo.findAll();
         return new ResponseEntity<>(users, HttpStatus.OK);

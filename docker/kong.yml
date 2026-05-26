@@ -1,0 +1,43 @@
+_format_version: "3.0"
+
+services:
+  # --- 1. AUTH SERVICE ---
+  - name: auth-service
+    url: http://authservice:9898
+    routes:
+      - name: auth-route
+        paths:
+          - /auth
+        strip_path: false
+
+  # --- 2. SMS EXTRACT SERVICE (With AI Rate Limiting) ---
+  - name: sms-service
+    url: http://smsservice:8081
+    routes:
+      - name: sms-route
+        paths:
+          - /api/sms
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10 # Protects your Gemini API bill!
+          policy: local
+
+  # --- 3. USER SERVICE ---
+  - name: user-service
+    url: http://userservice:9810
+    routes:
+      - name: user-route
+        paths:
+          - /user
+        strip_path: false
+
+  # --- 4. EXPENSE SERVICE ---
+  - name: expense-service
+    url: http://expenceservice:9820
+    routes:
+      - name: expense-route
+        paths:
+          - /expense
+        strip_path: false
